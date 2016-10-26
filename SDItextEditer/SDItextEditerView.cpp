@@ -26,6 +26,8 @@ BEGIN_MESSAGE_MAP(CSDItextEditerView, CView)
 	ON_COMMAND(ID_FILE_PRINT, &CView::OnFilePrint)
 	ON_COMMAND(ID_FILE_PRINT_DIRECT, &CView::OnFilePrint)
 	ON_COMMAND(ID_FILE_PRINT_PREVIEW, &CView::OnFilePrintPreview)
+	ON_WM_CHAR()
+	ON_WM_LBUTTONDOWN()
 END_MESSAGE_MAP()
 
 // CSDItextEditerView 构造/析构
@@ -102,3 +104,23 @@ CSDItextEditerDoc* CSDItextEditerView::GetDocument() const // 非调试版本是内联的
 
 
 // CSDItextEditerView 消息处理程序
+
+
+
+//2.响应WM_CHAR消息，按下字符显示
+void CSDItextEditerView::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags)
+{
+	// TODO:  在此添加消息处理程序代码和/或调用默认值
+	CDC dc;
+//	dc.TextOutW();
+
+	CView::OnChar(nChar, nRepCnt, nFlags);
+}
+
+//3.响应WM_Lbuttondown，改变提示符位置
+void CSDItextEditerView::OnLButtonDown(UINT nFlags, CPoint point)
+{
+	// TODO:  在此添加消息处理程序代码和/或调用默认值
+	SetCaretPos(point);
+	CView::OnLButtonDown(nFlags, point);
+}

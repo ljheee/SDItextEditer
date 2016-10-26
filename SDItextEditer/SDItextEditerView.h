@@ -40,6 +40,10 @@ protected:
 // 生成的消息映射函数
 protected:
 	DECLARE_MESSAGE_MAP()
+public:
+//	virtual BOOL Create(LPCTSTR lpszClassName, LPCTSTR lpszWindowName, DWORD dwStyle, const RECT& rect, CWnd* pParentWnd, UINT nID, CCreateContext* pContext = NULL);
+	afx_msg void OnChar(UINT nChar, UINT nRepCnt, UINT nFlags);
+	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
 };
 
 #ifndef _DEBUG  // SDItextEditerView.cpp 中的调试版本

@@ -62,6 +62,10 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	EnableDocking(CBRS_ALIGN_ANY);
 	DockControlBar(&m_wndToolBar);
 
+	CreateSolidCaret(2, 15);//1.设置，显示“闪烁提示符”
+//	SetCaretPos();
+	ShowCaret();
+
 
 	return 0;
 }
