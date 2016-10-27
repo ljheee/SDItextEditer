@@ -111,8 +111,39 @@ CSDItextEditerDoc* CSDItextEditerView::GetDocument() const // 非调试版本是内联的
 void CSDItextEditerView::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags)
 {
 	// TODO:  在此添加消息处理程序代码和/或调用默认值
-	CDC dc;
-//	dc.TextOutW();
+	m_strLine += (unsigned char)nChar;
+
+	CClientDC dc(this);
+	CFont font;
+	font.CreatePointFont(100,_T("宋体"),&dc);
+	dc.SelectObject(font);
+	
+	TEXTMETRIC tm;
+	dc.GetTextMetrics(&tm);
+
+	if (nChar == 0x0d){//
+		m_strLine = "";
+		m_ptLine.y += tm.tmHeight;
+	}
+	else if (nChar == 0x08){//
+		COLORREF oldcol;
+		oldcol = dc.SetTextColor(GetBkColor(dc.m_hDC));
+		dc.TextOutW(m_ptLine.x , m_ptLine.y ,m_strLine);
+		dc.SetTextColor(oldcol);
+
+		int nCount = m_strLine.GetLength();
+		nCount--;
+		m_strLine = m_strLine.Left(nCount);
+				
+	}
+
+	CSize sz = dc.GetTextExtent(m_strLine);
+	CPoint pt;
+	pt.x = m_ptLine.x + sz.cx;
+	pt.y = m_ptLine.y;
+
+	SetCaretPos(pt);
+	dc.TextOutW(m_ptLine.x, m_ptLine.y, m_strLine);
 
 	CView::OnChar(nChar, nRepCnt, nFlags);
 }
@@ -122,5 +153,7 @@ void CSDItextEditerView::OnLButtonDown(UINT nFlags, CPoint point)
 {
 	// TODO:  在此添加消息处理程序代码和/或调用默认值
 	SetCaretPos(point);
+	m_ptLine = point;
+	m_strLine = "";
 	CView::OnLButtonDown(nFlags, point);
 }

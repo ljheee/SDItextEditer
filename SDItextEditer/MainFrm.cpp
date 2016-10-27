@@ -62,10 +62,14 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	EnableDocking(CBRS_ALIGN_ANY);
 	DockControlBar(&m_wndToolBar);
 
-	CreateSolidCaret(2, 15);//1.设置，显示“闪烁提示符”
-//	SetCaretPos();
-	ShowCaret();
 
+
+	TEXTMETRIC tm;
+	CClientDC dc(this);
+	dc.GetTextMetrics(&tm);
+	CreateSolidCaret(tm.tmAveCharWidth / 8, tm.tmHeight);//1.设置，显示“闪烁提示符”
+	ReleaseDC(&dc);
+	ShowCaret();
 
 	return 0;
 }

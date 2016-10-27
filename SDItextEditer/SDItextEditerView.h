@@ -14,6 +14,8 @@ protected: // 仅从序列化创建
 // 特性
 public:
 	CSDItextEditerDoc* GetDocument() const;
+	CPoint m_ptLine;//当前行--起始点
+	CString m_strLine;//当前文本行--内容
 
 // 操作
 public:
