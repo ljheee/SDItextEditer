@@ -70,7 +70,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	CreateSolidCaret(tm.tmAveCharWidth / 8, tm.tmHeight);//1.设置，显示“闪烁提示符”
 	ReleaseDC(&dc);
 	ShowCaret();
-
+	SetTimer(1 , 100, NULL);
 	return 0;
 }
 

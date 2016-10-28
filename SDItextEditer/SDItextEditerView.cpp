@@ -28,6 +28,7 @@ BEGIN_MESSAGE_MAP(CSDItextEditerView, CView)
 	ON_COMMAND(ID_FILE_PRINT_PREVIEW, &CView::OnFilePrintPreview)
 	ON_WM_CHAR()
 	ON_WM_LBUTTONDOWN()
+	ON_WM_TIMER()
 END_MESSAGE_MAP()
 
 // CSDItextEditerView 构造/析构
@@ -35,7 +36,7 @@ END_MESSAGE_MAP()
 CSDItextEditerView::CSDItextEditerView()
 {
 	// TODO:  在此处添加构造代码
-
+	m_nLength = 0;
 }
 
 CSDItextEditerView::~CSDItextEditerView()
@@ -52,7 +53,7 @@ BOOL CSDItextEditerView::PreCreateWindow(CREATESTRUCT& cs)
 
 // CSDItextEditerView 绘制
 
-void CSDItextEditerView::OnDraw(CDC* /*pDC*/)
+void CSDItextEditerView::OnDraw(CDC* pDC)
 {
 	CSDItextEditerDoc* pDoc = GetDocument();
 	ASSERT_VALID(pDoc);
@@ -60,6 +61,36 @@ void CSDItextEditerView::OnDraw(CDC* /*pDC*/)
 		return;
 
 	// TODO:  在此处为本机数据添加绘制代码
+	LOGBRUSH logBrush;
+	brush.CreateBrushIndirect(&logBrush);
+	CBrush *POldBrush = (CBrush*)pDC->SelectObject(&brush);
+	CPen *pOldPen = (CPen*)pDC->SelectStockObject(BLACK_PEN);
+
+	pDC->Pie(CRect(100, 100, 300, 300), CPoint(0, 0), CPoint(50, 200));
+
+	pDC->SelectObject(POldBrush);
+	pDC->SelectObject(pOldPen);
+
+	CString str;
+	str.LoadStringW(IDS_STR1);
+	pDC->TextOutW(100,150 , str);
+
+	CSize sz = pDC->GetTextExtent(str);
+	CRect rect;
+	rect.top = 150;
+	rect.left = 100;
+	rect.bottom = 150 + sz.cy;
+	rect.right = 100 + sz.cx;
+
+	pDC->BeginPath();//图层
+	pDC->Rectangle(rect);
+	pDC->EndPath();
+
+	pDC->SelectClipPath(RGN_AND);
+	pDC->TextOutW(100,150,str);
+	pDC->DrawText(str , CRect(100,200,200,300), 0 );
+
+
 }
 
 
@@ -111,9 +142,8 @@ CSDItextEditerDoc* CSDItextEditerView::GetDocument() const // 非调试版本是内联的
 void CSDItextEditerView::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags)
 {
 	// TODO:  在此添加消息处理程序代码和/或调用默认值
-	m_strLine += (unsigned char)nChar;
-
 	CClientDC dc(this);
+
 	CFont font;
 	font.CreatePointFont(100,_T("宋体"),&dc);
 	dc.SelectObject(font);
@@ -121,11 +151,11 @@ void CSDItextEditerView::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags)
 	TEXTMETRIC tm;
 	dc.GetTextMetrics(&tm);
 
-	if (nChar == 0x0d){//
+	if (nChar == 0x0d){//回车键：换行
 		m_strLine = "";
 		m_ptLine.y += tm.tmHeight;
 	}
-	else if (nChar == 0x08){//
+	else if (nChar == 0x08){//Backspace键：删除，用背景色覆盖原字符串，将字符串截取前端并重绘
 		COLORREF oldcol;
 		oldcol = dc.SetTextColor(GetBkColor(dc.m_hDC));
 		dc.TextOutW(m_ptLine.x , m_ptLine.y ,m_strLine);
@@ -133,17 +163,18 @@ void CSDItextEditerView::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags)
 
 		int nCount = m_strLine.GetLength();
 		nCount--;
-		m_strLine = m_strLine.Left(nCount);
-				
+		m_strLine = m_strLine.Left(nCount);	
 	}
+	else
+	m_strLine += (unsigned char)nChar;//追加字符
 
 	CSize sz = dc.GetTextExtent(m_strLine);
 	CPoint pt;
 	pt.x = m_ptLine.x + sz.cx;
 	pt.y = m_ptLine.y;
 
-	SetCaretPos(pt);
-	dc.TextOutW(m_ptLine.x, m_ptLine.y, m_strLine);
+	SetCaretPos(pt);//移动提示符
+	dc.TextOutW(m_ptLine.x, m_ptLine.y, m_strLine);//显示字符。此处是局部更新
 
 	CView::OnChar(nChar, nRepCnt, nFlags);
 }
@@ -156,4 +187,24 @@ void CSDItextEditerView::OnLButtonDown(UINT nFlags, CPoint point)
 	m_ptLine = point;
 	m_strLine = "";
 	CView::OnLButtonDown(nFlags, point);
+}
+
+
+void CSDItextEditerView::OnTimer(UINT_PTR nIDEvent)
+{
+	// TODO:  在此添加消息处理程序代码和/或调用默认值
+	m_nLength += 5;
+	CString str;
+	str.LoadStringW(IDS_STR1);
+
+	CClientDC dc(this);
+	CSize sz = dc.GetTextExtent(str);
+	if (m_nLength > sz.cx){
+		m_nLength = 0;
+		dc.SetTextColor(RGB(255 , 0,0));
+		dc.TextOutW(100,300,str);
+	}
+	dc.DrawText(str,CRect(100,300,100+m_nLength, 300+sz.cy), 0 );
+
+	CView::OnTimer(nIDEvent);
 }

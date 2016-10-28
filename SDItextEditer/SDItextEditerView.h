@@ -16,6 +16,8 @@ public:
 	CSDItextEditerDoc* GetDocument() const;
 	CPoint m_ptLine;//当前行--起始点
 	CString m_strLine;//当前文本行--内容
+	CBrush brush;
+	int m_nLength;
 
 // 操作
 public:
@@ -46,6 +48,7 @@ public:
 //	virtual BOOL Create(LPCTSTR lpszClassName, LPCTSTR lpszWindowName, DWORD dwStyle, const RECT& rect, CWnd* pParentWnd, UINT nID, CCreateContext* pContext = NULL);
 	afx_msg void OnChar(UINT nChar, UINT nRepCnt, UINT nFlags);
 	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
+	afx_msg void OnTimer(UINT_PTR nIDEvent);
 };
 
 #ifndef _DEBUG  // SDItextEditerView.cpp 中的调试版本
